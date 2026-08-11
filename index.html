@@ -321,9 +321,9 @@
       z-index: 1;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
     .usage-title {
       margin: 0;
@@ -332,20 +332,13 @@
       letter-spacing: -0.02em;
     }
     .usage-total {
-      min-height: 26px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 4px 9px;
-      border-radius: var(--r-pill);
-      background: var(--fill-thick);
-      border: 0.5px solid var(--glass-stroke-soft);
-      color: #f5f5f7;
-      font-size: 11px;
-      font-weight: 700;
+      display: block;
+      color: #fff;
+      font-size: 25px;
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing: -0.04em;
       direction: rtl;
-      text-align: right;
-      white-space: nowrap;
     }
     .usage-ranges {
       position: relative;
@@ -377,10 +370,92 @@
       color: #fff7ed;
     }
     .usage-range:active { transform: scale(0.97); }
+    .usage-overview {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 112px minmax(0, 1fr);
+      align-items: center;
+      gap: 18px;
+      padding: 14px;
+      margin-bottom: 12px;
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 12% 50%, rgba(255,106,0,0.16), transparent 44%),
+        rgba(255,255,255,0.025);
+      border: 0.5px solid rgba(255,106,0,0.2);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
+      direction: ltr;
+    }
+    .usage-ring {
+      width: 108px;
+      height: 108px;
+      padding: 8px;
+      border-radius: 50%;
+      background:
+        conic-gradient(from -90deg, #ff9f0a 0%, #ff5f00 var(--ring-progress), rgba(255,255,255,0.075) var(--ring-progress), rgba(255,255,255,0.075) 100%);
+      box-shadow:
+        0 0 24px rgba(255,106,0,0.2),
+        inset 0 0 18px rgba(255,149,0,0.12);
+      transition: background 0.35s ease;
+    }
+    .usage-ring.unlimited {
+      background: conic-gradient(from -90deg, #ff9f0a, #ff5f00, #ff9f0a);
+    }
+    .usage-ring-core {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      border-radius: 50%;
+      background: #050505;
+      border: 1px solid rgba(255,255,255,0.07);
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+      direction: rtl;
+      text-align: center;
+    }
+    .usage-ring-value {
+      max-width: 82px;
+      overflow: hidden;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.15;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .usage-ring-label {
+      color: rgba(255,255,255,0.48);
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .usage-summary {
+      min-width: 0;
+      direction: rtl;
+      text-align: right;
+    }
+    .usage-summary-label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text-tertiary);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .usage-summary-note {
+      display: block;
+      margin-top: 7px;
+      color: #fdba74;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
     .usage-chart-wrap {
       position: relative;
       z-index: 1;
-      min-height: 210px;
+      min-height: 196px;
       border-radius: 18px;
       background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.025));
       border: 0.5px solid var(--glass-stroke-soft);
@@ -390,8 +465,8 @@
       display: grid;
       grid-template-columns: repeat(var(--bar-count), minmax(0, 1fr));
       align-items: end;
-      gap: 8px;
-      min-height: 210px;
+      gap: 7px;
+      min-height: 196px;
       padding: 16px 12px;
       direction: ltr;
     }
@@ -405,23 +480,25 @@
     .usage-bar {
       position: relative;
       min-height: 110px;
-      border-radius: 14px;
-      background: var(--fill);
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.018));
       border: 0.5px solid var(--glass-stroke-soft);
       overflow: hidden;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
     }
     .usage-bar-fill {
       position: absolute;
-      inset-inline: 0;
+      inset-inline: 16%;
       bottom: 0;
-      min-height: 28%;
       height: var(--bar-h);
-      border-radius: inherit;
+      min-height: 6px;
+      border-radius: 999px 999px 8px 8px;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.28), rgba(255,255,255,0.04)),
-        linear-gradient(180deg, rgba(255,106,0,0.96), rgba(255,106,0,0.24));
-      border: 0.5px solid rgba(255,106,0,0.42);
+        linear-gradient(180deg, rgba(255,225,190,0.9), rgba(255,149,0,0.95) 18%, rgba(255,95,0,0.86) 58%, rgba(128,38,0,0.7));
+      border: 0.5px solid rgba(255,149,0,0.58);
+      box-shadow:
+        0 0 10px rgba(255,106,0,0.58),
+        0 0 24px rgba(255,95,0,0.24);
     }
     .usage-bar-value {
       position: absolute;
@@ -450,7 +527,7 @@
       direction: ltr;
     }
     .usage-empty {
-      min-height: 210px;
+      min-height: 196px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1141,13 +1218,9 @@
         </div>
 
         <div class="info-grid">
-          <div class="info-cell">
+          <div class="info-cell info-cell-wide">
             <span class="k">آخرین اتصال</span>
             <span class="v" id="f-online">—</span>
-          </div>
-          <div class="info-cell">
-            <span class="k">ظرفیت اکانت</span>
-            <span class="v" id="f-hwid-limit">—</span>
           </div>
         </div>
       </section>
@@ -1155,11 +1228,23 @@
       <section class="glass usage-card">
         <div class="usage-head">
           <h2 class="usage-title">نمودار مصرف</h2>
-          <span class="usage-total" id="usage-total">—</span>
         </div>
         <div class="usage-ranges" role="tablist" aria-label="بازه نمودار مصرف">
           <button type="button" class="usage-range active" data-range="1d">۱ روز</button>
           <button type="button" class="usage-range" data-range="7d">۱ هفته</button>
+        </div>
+        <div class="usage-overview">
+          <div class="usage-ring" id="usage-ring" style="--ring-progress:0%">
+            <div class="usage-ring-core">
+              <strong class="usage-ring-value" id="usage-account-used">—</strong>
+              <span class="usage-ring-label">مصرف‌شده</span>
+            </div>
+          </div>
+          <div class="usage-summary">
+            <span class="usage-summary-label">مصرف بازه انتخابی</span>
+            <strong class="usage-total" id="usage-total">—</strong>
+            <span class="usage-summary-note" id="usage-account-meta">در حال دریافت اطلاعات اکانت</span>
+          </div>
         </div>
         <div class="usage-chart-wrap" id="usage-chart">
           <div class="usage-empty">در حال دریافت نمودار مصرف</div>
@@ -1494,6 +1579,24 @@
     } catch (e) { return String(v); }
   }
 
+  function formatDateTime(v) {
+    var time = timestampFromValue(v);
+    if (!time) return 'هرگز';
+    try {
+      return new Intl.DateTimeFormat('fa-IR', {
+        timeZone: 'Asia/Tehran',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).format(new Date(time));
+    } catch (e) {
+      return new Date(time).toLocaleString('fa-IR');
+    }
+  }
+
   function formatRemainingDays(value) {
     if (!value) return 'نامحدود';
     var end = timestampFromValue(value);
@@ -1525,15 +1628,6 @@
     if (!start || start >= end) return formatDate(end);
     return formatDurationDays(end - start);
   }
-
-  function formatDeviceLimit(value) {
-    if (value == null || value === '') return '—';
-    var n = Number(value);
-    if (!isFinite(n)) return String(value);
-    if (n <= 0) return 'بدون محدودیت';
-    return toPersianDigits(n) + ' دستگاه';
-  }
-
 
   function normalizeStatus(s) {
     if (!s) return 'active';
@@ -1828,10 +1922,27 @@
   var usageCtx = null;
   var usageRange = '1d';
   var usageRequestId = 0;
+  var usageAccountUsed = 0;
+  var usageAccountLimit = null;
   var USAGE_RANGES = {
     '1d': { period: 'hour', hours: 24 },
     '7d': { period: 'day', days: 7 }
   };
+
+  function updateUsageRing() {
+    var ring = $('usage-ring');
+    if (!ring) return;
+    var used = Math.max(0, Number(usageAccountUsed) || 0);
+    var limit = Number(usageAccountLimit);
+    var hasLimit = isFinite(limit) && limit > 0;
+    var percent = hasLimit ? Math.min(100, Math.max(0, used / limit * 100)) : 0;
+    ring.style.setProperty('--ring-progress', percent.toFixed(1) + '%');
+    ring.classList.toggle('unlimited', !hasLimit);
+    $('usage-account-used').textContent = formatUsageValue(used);
+    $('usage-account-meta').textContent = hasLimit
+      ? toPersianDigits(Math.round(percent)) + '٪ از حجم کل مصرف شده'
+      : 'حجم اکانت نامحدود است';
+  }
 
   function usageRangeUrl(ctx, range) {
     var meta = USAGE_RANGES[range] || USAGE_RANGES['1d'];
@@ -1907,9 +2018,18 @@
   function formatUsageValue(value) {
     if (!value) return '۰G';
     var gb = value / 1073741824;
-    var text = gb < 1 ? gb.toFixed(2) : (gb < 10 ? gb.toFixed(1) : String(Math.round(gb)));
+    var amount = gb;
+    var unit = 'G';
+    if (gb >= 1024) {
+      amount = gb / 1024;
+      unit = 'T';
+    } else if (gb < 0.1) {
+      amount = value / 1048576;
+      unit = 'M';
+    }
+    var text = amount < 1 ? amount.toFixed(2) : (amount < 10 ? amount.toFixed(1) : String(Math.round(amount)));
     text = text.replace(/\.0$/, '');
-    return toPersianDigits(text) + 'G';
+    return toPersianDigits(text) + unit;
   }
 
   function bucketUsage(items, range) {
@@ -1936,7 +2056,7 @@
     var total = bars.reduce(function (sum, p) { return sum + p.value; }, 0);
     $('usage-total').textContent = formatBytes(total);
     chart.innerHTML = '<div class="usage-bars" style="--bar-count:' + bars.length + '">' + bars.map(function (bar, idx) {
-      var height = Math.max(28, Math.round(bar.value / max * 100));
+      var height = bar.value > 0 ? Math.max(10, Math.round(bar.value / max * 100)) : 3;
       return '<div class="usage-bar-item">' +
         '<div class="usage-bar" title="' + escapeAttr(formatBytes(bar.value)) + '">' +
           '<div class="usage-bar-fill" style="--bar-h:' + height + '%"></div>' +
@@ -2061,7 +2181,9 @@
     var remain = !limit ? null : Math.max(0, (Number(limit) || 0) - (Number(used) || 0));
     $('f-limit').textContent = !limit ? '∞' : formatBytes(limit);
     $('f-remain').textContent = !limit ? '∞' : formatBytes(remain);
-    $('f-hwid-limit').textContent = formatDeviceLimit(user.hwid_limit);
+    usageAccountUsed = Number(used) || 0;
+    usageAccountLimit = limit;
+    updateUsageRing();
 
     if (status === 'on_hold' && user.on_hold_timeout) {
       $('f-expire').textContent = formatRemainingDays(user.on_hold_timeout);
@@ -2071,7 +2193,7 @@
     } else {
       $('f-expire').textContent = formatRemainingDays(user.expire);
     }
-    $('f-online').textContent = user.online_at ? formatDate(user.online_at) : 'هرگز';
+    $('f-online').textContent = formatDateTime(user.online_at);
   }
 
   function renderAnnounce(headers) {
