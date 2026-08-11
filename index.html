@@ -275,12 +275,15 @@
       color: var(--text-tertiary);
       font-size: 11px;
       font-weight: 700;
+      direction: rtl;
     }
     .account-total strong {
       color: #fff;
       font-size: 15px;
       font-weight: 800;
-      direction: ltr;
+      direction: rtl;
+      unicode-bidi: isolate;
+      white-space: nowrap;
     }
     .account-usage-block {
       margin-top: 22px;
@@ -330,25 +333,41 @@
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
+      flex-wrap: wrap;
       gap: 14px;
       margin-top: 12px;
       color: var(--text-tertiary);
       font-size: 11px;
       font-weight: 700;
     }
-    .account-volume-value {
+    .account-remaining {
+      display: inline-flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 7px;
+      min-width: 0;
+    }
+    .account-remaining-label {
+      color: var(--text-tertiary);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .account-remaining strong {
       color: #fff;
-      font-size: 14px;
-      font-weight: 800;
-      line-height: 1.55;
-      text-align: left;
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.4;
       direction: rtl;
+      unicode-bidi: isolate;
+      white-space: nowrap;
     }
     .account-used {
       color: var(--text-secondary);
-      font-size: 11px;
-      font-weight: 600;
+      font-size: 10px;
+      font-weight: 400;
       white-space: nowrap;
+      direction: rtl;
+      unicode-bidi: isolate;
     }
     .account-meta-row {
       display: grid;
@@ -1337,11 +1356,11 @@
               <span class="account-progress-fill" id="account-progress-fill"></span>
             </div>
             <div class="account-volume-row">
-              <span>حجم باقی‌مانده</span>
-              <strong class="account-volume-value">
-                <span id="f-remain">—</span>
-                <span class="account-used">(مصرف‌شده: <span id="f-used">—</span>)</span>
-              </strong>
+              <span class="account-remaining">
+                <span class="account-remaining-label">حجم باقی‌مانده</span>
+                <strong id="f-remain">—</strong>
+              </span>
+              <span class="account-used">(مصرف‌شده: <span id="f-used">—</span>)</span>
             </div>
           </div>
 
@@ -1690,7 +1709,7 @@
     var u = ['بایت','کیلوبایت','مگابایت','گیگابایت','ترابایت'];
     var i = Math.min(u.length - 1, Math.floor(Math.log(n) / Math.log(1024)));
     var value = (n / Math.pow(1024, i)).toFixed(i > 1 ? 1 : 0);
-    return toPersianDigits(value) + ' ' + u[i];
+    return toPersianDigits(value).replace(/\./g, '٫') + ' ' + u[i];
   }
 
   function formatDate(v) {
