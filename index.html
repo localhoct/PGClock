@@ -626,18 +626,13 @@
       text-align: center;
       opacity: 0;
       pointer-events: none;
-      transform: translate(-50%, calc(-100% - 10px)) scale(0.94);
+      transform: scale(0.94);
+      transform-origin: center;
       transition: opacity 0.14s ease, transform 0.14s ease;
     }
     .usage-point-tooltip.show {
       opacity: 1;
-      transform: translate(-50%, calc(-100% - 10px)) scale(1);
-    }
-    .usage-point-tooltip.below {
-      transform: translate(-50%, 10px) scale(0.94);
-    }
-    .usage-point-tooltip.below.show {
-      transform: translate(-50%, 10px) scale(1);
+      transform: scale(1);
     }
     .usage-point-tooltip strong {
       display: block;
@@ -2311,32 +2306,34 @@
     var svg = chart.querySelector('.usage-line-svg');
     var pointElements = chart.querySelectorAll('.usage-line-point');
     function hidePointTooltip() {
-      tooltip.classList.remove('show', 'below');
+      tooltip.classList.remove('show');
       tooltip.setAttribute('aria-hidden', 'true');
       pointElements.forEach(function (node) { node.classList.remove('active'); });
     }
     function showPointTooltip(node) {
       var value = Number(node.getAttribute('data-value')) || 0;
       var label = node.getAttribute('data-label') || '';
-      var x = Number(node.getAttribute('data-x')) || 0;
-      var y = Number(node.getAttribute('data-y')) || 0;
       pointElements.forEach(function (item) { item.classList.toggle('active', item === node); });
       tooltip.querySelector('strong').textContent = formatBytes(value);
       tooltip.querySelector('span').textContent = label;
 
       var host = tooltip.parentElement;
+      var hostRect = host.getBoundingClientRect();
+      var pointRect = node.getBoundingClientRect();
       var hostWidth = host.clientWidth;
-      var plotWidth = Math.max(0, hostWidth - 20);
-      var pointX = 10 + x / width * plotWidth;
+      var hostHeight = host.clientHeight;
+      var pointX = pointRect.left + pointRect.width / 2 - hostRect.left;
+      var pointY = pointRect.top + pointRect.height / 2 - hostRect.top;
       var tooltipWidth = tooltip.offsetWidth || 100;
-      var minX = tooltipWidth / 2 + 6;
-      var maxX = Math.max(minX, hostWidth - tooltipWidth / 2 - 6);
-      tooltip.style.left = Math.min(maxX, Math.max(minX, pointX)) + 'px';
-
-      var pointY = 12 + y / height * 150;
       var tooltipHeight = tooltip.offsetHeight || 48;
-      tooltip.classList.toggle('below', pointY < tooltipHeight + 20);
-      tooltip.style.top = pointY + 'px';
+      var maxLeft = Math.max(6, hostWidth - tooltipWidth - 6);
+      var left = Math.min(maxLeft, Math.max(6, pointX - tooltipWidth / 2));
+      var top = pointY - tooltipHeight - 10;
+      if (top < 6) top = pointY + 10;
+      var maxTop = Math.max(6, hostHeight - tooltipHeight - 6);
+      top = Math.min(maxTop, Math.max(6, top));
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = top + 'px';
       tooltip.classList.add('show');
       tooltip.setAttribute('aria-hidden', 'false');
     }
