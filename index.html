@@ -633,6 +633,12 @@
       opacity: 1;
       transform: translate(-50%, calc(-100% - 10px)) scale(1);
     }
+    .usage-point-tooltip.below {
+      transform: translate(-50%, 10px) scale(0.94);
+    }
+    .usage-point-tooltip.below.show {
+      transform: translate(-50%, 10px) scale(1);
+    }
     .usage-point-tooltip strong {
       display: block;
       color: #ffd0a0;
@@ -2305,7 +2311,7 @@
     var svg = chart.querySelector('.usage-line-svg');
     var pointElements = chart.querySelectorAll('.usage-line-point');
     function hidePointTooltip() {
-      tooltip.classList.remove('show');
+      tooltip.classList.remove('show', 'below');
       tooltip.setAttribute('aria-hidden', 'true');
       pointElements.forEach(function (node) { node.classList.remove('active'); });
     }
@@ -2317,8 +2323,20 @@
       pointElements.forEach(function (item) { item.classList.toggle('active', item === node); });
       tooltip.querySelector('strong').textContent = formatBytes(value);
       tooltip.querySelector('span').textContent = label;
-      tooltip.style.left = Math.min(92, Math.max(8, x / width * 100)) + '%';
-      tooltip.style.top = Math.max(43, y / height * 150 + 12) + 'px';
+
+      var host = tooltip.parentElement;
+      var hostWidth = host.clientWidth;
+      var plotWidth = Math.max(0, hostWidth - 20);
+      var pointX = 10 + x / width * plotWidth;
+      var tooltipWidth = tooltip.offsetWidth || 100;
+      var minX = tooltipWidth / 2 + 6;
+      var maxX = Math.max(minX, hostWidth - tooltipWidth / 2 - 6);
+      tooltip.style.left = Math.min(maxX, Math.max(minX, pointX)) + 'px';
+
+      var pointY = 12 + y / height * 150;
+      var tooltipHeight = tooltip.offsetHeight || 48;
+      tooltip.classList.toggle('below', pointY < tooltipHeight + 20);
+      tooltip.style.top = pointY + 'px';
       tooltip.classList.add('show');
       tooltip.setAttribute('aria-hidden', 'false');
     }
