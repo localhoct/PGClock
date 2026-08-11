@@ -1126,17 +1126,17 @@
         </div>
 
         <div class="info-grid">
-          <div class="info-cell info-cell-wide">
+          <div class="info-cell">
             <span class="k">حجم باقیمانده</span>
             <span class="v" id="f-remain">—</span>
           </div>
           <div class="info-cell">
+            <span class="k">حجم کل</span>
+            <span class="v" id="f-limit">—</span>
+          </div>
+          <div class="info-cell info-cell-wide">
             <span class="k">زمان باقیمانده</span>
             <span class="v" id="f-expire">—</span>
-          </div>
-          <div class="info-cell">
-            <span class="k">زمان کل</span>
-            <span class="v" id="f-expire-total">—</span>
           </div>
         </div>
 
@@ -2059,6 +2059,7 @@
     var used = user.used_traffic || 0;
     var limit = user.data_limit;
     var remain = !limit ? null : Math.max(0, (Number(limit) || 0) - (Number(used) || 0));
+    $('f-limit').textContent = !limit ? '∞' : formatBytes(limit);
     $('f-remain').textContent = !limit ? '∞' : formatBytes(remain);
     $('f-hwid-limit').textContent = formatDeviceLimit(user.hwid_limit);
 
@@ -2070,7 +2071,6 @@
     } else {
       $('f-expire').textContent = formatRemainingDays(user.expire);
     }
-    $('f-expire-total').textContent = formatTotalDuration(user, status);
     $('f-online').textContent = user.online_at ? formatDate(user.online_at) : 'هرگز';
   }
 
