@@ -384,6 +384,47 @@
       line-height: 1.55;
       overflow-wrap: anywhere;
     }
+    .last-online-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .last-online-dot {
+      position: relative;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.38);
+      flex-shrink: 0;
+    }
+    .last-online.online .last-online-dot {
+      background: #37e66f;
+      box-shadow: 0 0 10px rgba(55,230,111,0.62);
+    }
+    .last-online.online .last-online-dot::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1px solid rgba(55,230,111,0.5);
+      animation: online-ping 1.7s ease-out infinite;
+    }
+    @keyframes online-ping {
+      from { transform: scale(0.55); opacity: 0.9; }
+      to { transform: scale(1.55); opacity: 0; }
+    }
+    .last-online.online .last-online-text {
+      color: #86efac;
+    }
+    .last-online-date {
+      display: block;
+      margin-top: 4px;
+      color: var(--text-tertiary);
+      font-size: 10px;
+      font-weight: 600;
+      direction: ltr;
+      text-align: right;
+    }
     @media (max-width: 350px) {
       .account-meta-row { grid-template-columns: 1fr; gap: 12px; }
       .account-meta { padding-inline: 0; }
@@ -1661,13 +1702,12 @@
 
   function formatDateTime(v) {
     var time = timestampFromValue(v);
-    if (!time) return 'هرگز';
+    if (!time) return '';
     try {
       return new Intl.DateTimeFormat('fa-IR', {
-        timeZone: 'Asia/Tehran',
         year: 'numeric',
-        month: 'short',
-        day: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
         hour: '2-digit',
         minute: '2-digit',
         hour12: false
@@ -1675,6 +1715,45 @@
     } catch (e) {
       return new Date(time).toLocaleString('fa-IR');
     }
+  }
+
+  function lastOnlineInfo(value) {
+    var time = timestampFromValue(value);
+    if (!time) return { text: 'هنوز متصل نشده', isOnline: false, time: null };
+    var seconds = Math.abs(Math.floor((Date.now() - time) / 1000));
+    if (seconds <= 60) return { text: 'آنلاین', isOnline: true, time: time };
+    var amount;
+    var unit;
+    if (seconds >= 31536000) {
+      amount = Math.floor(seconds / 31536000);
+      unit = 'سال';
+    } else if (seconds >= 2592000) {
+      amount = Math.floor(seconds / 2592000);
+      unit = 'ماه';
+    } else if (seconds >= 86400) {
+      amount = Math.floor(seconds / 86400);
+      unit = 'روز';
+    } else if (seconds >= 3600) {
+      amount = Math.floor(seconds / 3600);
+      unit = 'ساعت';
+    } else if (seconds >= 60) {
+      amount = Math.floor(seconds / 60);
+      unit = 'دقیقه';
+    } else {
+      amount = seconds;
+      unit = 'ثانیه';
+    }
+    return { text: toPersianDigits(amount) + ' ' + unit + ' پیش', isOnline: false, time: time };
+  }
+
+  function renderLastOnline(value) {
+    var info = lastOnlineInfo(value);
+    var target = $('f-online');
+    target.className = 'account-meta-value last-online' + (info.isOnline ? ' online' : ' offline');
+    target.innerHTML =
+      '<span class="last-online-status"><span class="last-online-dot"></span>' +
+      '<span class="last-online-text">' + escapeHtml(info.text) + '</span></span>' +
+      (info.time ? '<span class="last-online-date">' + escapeHtml(formatDateTime(info.time)) + '</span>' : '');
   }
 
   function formatRemainingDays(value) {
@@ -2332,7 +2411,13 @@
       if (n < 100000000000) n *= 1000;
       return n;
     }
-    var time = new Date(value).getTime();
+    var normalized = String(value).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
+      normalized += 'T00:00:00Z';
+    } else if (/^\d{4}-\d{2}-\d{2}[T\s]/.test(normalized) && !/(?:Z|[+-]\d{2}:?\d{2})$/i.test(normalized)) {
+      normalized = normalized.replace(' ', 'T') + 'Z';
+    }
+    var time = new Date(normalized).getTime();
     return isFinite(time) && time > 0 ? time : null;
   }
 
@@ -2363,7 +2448,7 @@
     } else {
       $('f-expire').textContent = formatRemainingDays(user.expire);
     }
-    $('f-online').textContent = formatDateTime(user.online_at);
+    renderLastOnline(user.online_at);
   }
 
   function renderAnnounce(headers) {
