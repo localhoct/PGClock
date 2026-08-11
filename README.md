@@ -1,95 +1,56 @@
 <div align="center">
-  <img src="Preview.png" alt="PGClock Preview" width="900">
+  <img src="Preview.png" alt="PGClock AMOLED Preview" width="900">
 </div>
 
-<h1 align="center">PGClock</h1>
+<h1 align="center">PGClock AMOLED</h1>
 
 <p align="center">
-  نسخهٔ استاندارد — قالب شیشه‌ای صفحهٔ اشتراک برای Pasarguard
-</p>
-
-<p align="center">
-  <a href="#نصب-خودکار">نصب خودکار</a> ·
-  <a href="#نصب-دستی">نصب دستی</a> ·
-  <a href="#تنظیمات-پنل">تنظیمات پنل</a> ·
-  <a href="#نسخه‌های-دیگر">نسخه‌های دیگر</a>
+  قالب صفحه اشتراک Pasarguard با پس‌زمینه مشکی عمیق و رنگ تأکیدی نارنجی
 </p>
 
 ---
 
 ## ویژگی‌ها
 
-- رابط شیشه‌ای برای موبایل، تبلت و دسکتاپ
-- اطلاعات اشتراک، هشدارها و نمودار مصرف
-- اپلیکیشن‌ها و اعلان‌ها از پنل
-- کپی، QR و دانلود WireGuard برای کانفیگ‌ها
-- تشخیص OS و مرتب‌سازی اپ‌ها
-- یک فایل HTML — بدون Node.js و build
+- طراحی بهینه‌شده برای نمایشگرهای AMOLED
+- پس‌زمینه مشکی خالص و کارت‌های شیشه‌ای تیره
+- نمایش اطلاعات اشتراک، هشدارها و نمودار مصرف
+- کپی لینک، نمایش QR و دانلود کانفیگ WireGuard
+- تشخیص سیستم‌عامل و نمایش اپلیکیشن‌های مناسب
+- واکنش‌گرا برای موبایل، تبلت و دسکتاپ
+- یک فایل HTML و بدون نیاز به Node.js یا Build
 
 ---
 
-## نصب خودکار
+## نصب و به‌روزرسانی
 
-روی سرور **Ubuntu** با Pasarguard نصب‌شده:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/Mrclocks/PGClock/main/install.sh -o /tmp/pgclock-install.sh && sudo bash /tmp/pgclock-install.sh
-```
-
-یا:
+روی سروری که Pasarguard نصب شده است، دستور زیر را اجرا کنید:
 
 ```bash
-wget -qO /tmp/pgclock-install.sh https://raw.githubusercontent.com/Mrclocks/PGClock/main/install.sh && sudo bash /tmp/pgclock-install.sh
-```
-
-در منو گزینه **۲) PGClock** را انتخاب کنید.
-
-### اسکریپت چه کار می‌کند؟
-
-1. منوی انتخاب نسخه (`Lite` / `PGClock` / `Pro`)
-2. ذخیرهٔ `index.html` در:
-
-```text
-/var/lib/pasarguard/templates/subscription/index.html
-```
-
-3. به‌روزرسانی `/opt/pasarguard/.env`:
-
-```env
-CUSTOM_TEMPLATES_DIRECTORY="/var/lib/pasarguard/templates/"
-SUBSCRIPTION_PAGE_TEMPLATE="subscription/index.html"
-```
-
-4. اجرای `pasarguard restart`
-
-> **پیش‌نیازها:** `wget`، `curl`، `python3`
-
----
-
-## نصب دستی
-
-### ۱. دانلود قالب
-
-```bash
-sudo mkdir -p /var/lib/pasarguard/templates/subscription/
 sudo wget -N -O /var/lib/pasarguard/templates/subscription/index.html \
-  https://raw.githubusercontent.com/Mrclocks/PGClock/main/index.html
+  https://raw.githubusercontent.com/localhoct/PGClock/main/index.html
 ```
 
-### ۲. تنظیم Pasarguard
+با اجرای دوباره همین دستور، فایل قالب از مخزن `localhoct/PGClock` دریافت می‌شود.
+
+---
+
+## تنظیم Pasarguard
+
+فایل زیر را باز کنید:
 
 ```bash
 sudo nano /opt/pasarguard/.env
 ```
 
-اضافه یا به‌روز کنید:
+این مقادیر باید در فایل تنظیمات وجود داشته باشند:
 
 ```env
 CUSTOM_TEMPLATES_DIRECTORY="/var/lib/pasarguard/templates/"
 SUBSCRIPTION_PAGE_TEMPLATE="subscription/index.html"
 ```
 
-### ۳. راه‌اندازی مجدد
+سپس سرویس را راه‌اندازی مجدد کنید:
 
 ```bash
 sudo pasarguard restart
@@ -99,13 +60,12 @@ sudo pasarguard restart
 
 ## تنظیمات پنل
 
-1. پنل Pasarguard → **Settings → Subscription**
-2. ویرایش **announcement** و **announcement link**
-3. افزودن/ویرایش اپ‌ها در بخش apps
+1. وارد **Settings → Subscription** در پنل Pasarguard شوید.
+2. متن اعلان و لینک اعلان را تنظیم کنید.
+3. اپلیکیشن‌های موردنیاز را در بخش Apps اضافه یا ویرایش کنید.
 
 ---
 
-## نسخه‌های دیگر
+## پروژه اصلی
 
-- [PGClock Lite](https://github.com/Mrclocks/PGClockLite) — سبک‌تر و سریع‌تر
-- [PGClock Pro](https://github.com/Mrclocks/PGClockPRO) — برند، زیرعنوان و لوگوی سفارشی
+این مخزن نسخه شخصی‌سازی‌شده‌ای از [Mrclocks/PGClock](https://github.com/Mrclocks/PGClock) است.
