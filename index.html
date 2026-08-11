@@ -461,64 +461,62 @@
       border: 0.5px solid var(--glass-stroke-soft);
       overflow: hidden;
     }
-    .usage-bars {
-      display: grid;
-      grid-template-columns: repeat(var(--bar-count), minmax(0, 1fr));
-      align-items: end;
-      gap: 7px;
+    .usage-line-chart {
       min-height: 196px;
-      padding: 16px 12px;
+      padding: 12px 10px 9px;
       direction: ltr;
     }
-    .usage-bar-item {
-      min-width: 0;
+    .usage-line-svg {
+      display: block;
+      width: 100%;
+      height: 150px;
+      overflow: visible;
+    }
+    .usage-line-grid {
+      stroke: rgba(255,255,255,0.075);
+      stroke-width: 1;
+      stroke-dasharray: 4 6;
+      vector-effect: non-scaling-stroke;
+    }
+    .usage-line-area {
+      fill: url(#usage-area-gradient);
+    }
+    .usage-line-glow {
+      fill: none;
+      stroke: rgba(255,95,0,0.3);
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: blur(5px);
+      vector-effect: non-scaling-stroke;
+    }
+    .usage-line-path {
+      fill: none;
+      stroke: #ff7900;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter:
+        drop-shadow(0 0 4px rgba(255,149,0,0.9))
+        drop-shadow(0 0 10px rgba(255,95,0,0.5));
+      vector-effect: non-scaling-stroke;
+    }
+    .usage-line-point {
+      fill: #ffd0a0;
+      stroke: #ff5f00;
+      stroke-width: 2.2;
+      filter: drop-shadow(0 0 5px rgba(255,106,0,0.9));
+      vector-effect: non-scaling-stroke;
+    }
+    .usage-line-labels {
       display: grid;
-      grid-template-rows: 1fr auto;
-      gap: 8px;
-      height: 100%;
-    }
-    .usage-bar {
-      position: relative;
-      min-height: 110px;
-      border-radius: 12px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.018));
-      border: 0.5px solid var(--glass-stroke-soft);
-      overflow: hidden;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
-    }
-    .usage-bar-fill {
-      position: absolute;
-      inset-inline: 16%;
-      bottom: 0;
-      height: var(--bar-h);
-      min-height: 6px;
-      border-radius: 999px 999px 8px 8px;
-      background:
-        linear-gradient(180deg, rgba(255,225,190,0.9), rgba(255,149,0,0.95) 18%, rgba(255,95,0,0.86) 58%, rgba(128,38,0,0.7));
-      border: 0.5px solid rgba(255,149,0,0.58);
-      box-shadow:
-        0 0 10px rgba(255,106,0,0.58),
-        0 0 24px rgba(255,95,0,0.24);
-    }
-    .usage-bar-value {
-      position: absolute;
-      inset: 8px 0;
-      display: flex;
+      grid-template-columns: repeat(var(--point-count), minmax(0, 1fr));
       align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 11px;
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: 0.09em;
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      direction: ltr;
-      text-shadow: 0 1px 8px rgba(0,0,0,0.45);
-      white-space: nowrap;
-      z-index: 1;
+      gap: 0;
+      margin-top: 4px;
+      padding: 0 2px;
     }
-    .usage-bar-time {
+    .usage-line-label {
       color: rgba(255,255,255,0.5);
       font-size: 10px;
       font-weight: 700;
@@ -2043,6 +2041,28 @@
     return out;
   }
 
+  function chartNumber(value) {
+    return Math.round(value * 10) / 10;
+  }
+
+  function usageSmoothPath(points) {
+    if (!points.length) return '';
+    var path = 'M ' + points[0].x + ' ' + points[0].y;
+    if (points.length === 1) return path;
+    for (var i = 0; i < points.length - 1; i++) {
+      var p0 = points[i - 1] || points[i];
+      var p1 = points[i];
+      var p2 = points[i + 1];
+      var p3 = points[i + 2] || p2;
+      var cp1x = chartNumber(p1.x + (p2.x - p0.x) / 6);
+      var cp1y = chartNumber(p1.y + (p2.y - p0.y) / 6);
+      var cp2x = chartNumber(p2.x - (p3.x - p1.x) / 6);
+      var cp2y = chartNumber(p2.y - (p3.y - p1.y) / 6);
+      path += ' C ' + cp1x + ' ' + cp1y + ', ' + cp2x + ' ' + cp2y + ', ' + p2.x + ' ' + p2.y;
+    }
+    return path;
+  }
+
   function renderUsageChart(items, range) {
     var chart = $('usage-chart');
     if (!items.length) {
@@ -2051,20 +2071,50 @@
       return;
     }
 
-    var bars = bucketUsage(items, range);
-    var max = Math.max.apply(null, bars.map(function (p) { return p.value; })) || 1;
-    var total = bars.reduce(function (sum, p) { return sum + p.value; }, 0);
+    var buckets = bucketUsage(items, range);
+    var max = Math.max.apply(null, buckets.map(function (p) { return p.value; })) || 1;
+    var total = buckets.reduce(function (sum, p) { return sum + p.value; }, 0);
+    var width = 320;
+    var height = 132;
+    var padX = 12;
+    var padTop = 12;
+    var baseY = 120;
+    var plotHeight = baseY - padTop;
+    var points = buckets.map(function (bucket, idx) {
+      var x = buckets.length === 1 ? width / 2 : padX + idx * (width - padX * 2) / (buckets.length - 1);
+      var y = baseY - (bucket.value / max) * plotHeight;
+      return { x: chartNumber(x), y: chartNumber(y), value: bucket.value };
+    });
+    var linePath = usageSmoothPath(points);
+    var areaPath = linePath + ' L ' + points[points.length - 1].x + ' ' + baseY +
+      ' L ' + points[0].x + ' ' + baseY + ' Z';
+    var grid = [0, 1, 2, 3].map(function (idx) {
+      var y = chartNumber(padTop + idx * plotHeight / 3);
+      return '<line class="usage-line-grid" x1="' + padX + '" y1="' + y + '" x2="' + (width - padX) + '" y2="' + y + '"></line>';
+    }).join('');
+    var pointNodes = points.map(function (point) {
+      return '<circle class="usage-line-point" cx="' + point.x + '" cy="' + point.y + '" r="4">' +
+        '<title>' + escapeHtml(formatBytes(point.value)) + '</title></circle>';
+    }).join('');
+    var labels = buckets.map(function (_, idx) {
+      return '<span class="usage-line-label">' + escapeHtml(usageTickLabel(range, idx, buckets.length)) + '</span>';
+    }).join('');
     $('usage-total').textContent = formatBytes(total);
-    chart.innerHTML = '<div class="usage-bars" style="--bar-count:' + bars.length + '">' + bars.map(function (bar, idx) {
-      var height = bar.value > 0 ? Math.max(10, Math.round(bar.value / max * 100)) : 3;
-      return '<div class="usage-bar-item">' +
-        '<div class="usage-bar" title="' + escapeAttr(formatBytes(bar.value)) + '">' +
-          '<div class="usage-bar-fill" style="--bar-h:' + height + '%"></div>' +
-          '<span class="usage-bar-value">' + escapeHtml(formatUsageValue(bar.value)) + '</span>' +
-        '</div>' +
-        '<span class="usage-bar-time">' + escapeHtml(usageTickLabel(range, idx, bars.length)) + '</span>' +
-      '</div>';
-    }).join('') + '</div>';
+    chart.innerHTML = '<div class="usage-line-chart">' +
+      '<svg class="usage-line-svg" viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="none" role="img" aria-label="نمودار خطی مصرف">' +
+        '<defs><linearGradient id="usage-area-gradient" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0%" stop-color="#ff7900" stop-opacity="0.42"></stop>' +
+          '<stop offset="65%" stop-color="#ff5f00" stop-opacity="0.12"></stop>' +
+          '<stop offset="100%" stop-color="#ff5f00" stop-opacity="0"></stop>' +
+        '</linearGradient></defs>' +
+        grid +
+        '<path class="usage-line-area" d="' + areaPath + '"></path>' +
+        '<path class="usage-line-glow" d="' + linePath + '"></path>' +
+        '<path class="usage-line-path" d="' + linePath + '"></path>' +
+        pointNodes +
+      '</svg>' +
+      '<div class="usage-line-labels" style="--point-count:' + buckets.length + '">' + labels + '</div>' +
+    '</div>';
   }
 
   function renderUsageLoading() {
