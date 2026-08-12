@@ -502,6 +502,7 @@
     .usage-total {
       display: inline-flex;
       align-items: center;
+      gap: 5px;
       min-height: 27px;
       padding: 4px 10px;
       border-radius: var(--r-pill);
@@ -514,24 +515,30 @@
       direction: rtl;
       white-space: nowrap;
     }
+    .usage-total small {
+      color: rgba(255,255,255,0.55);
+      font-size: 9px;
+      font-weight: 700;
+    }
+    .usage-total-value { color: #ffd0a0; }
     .usage-ranges {
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 6px;
-      margin-bottom: 12px;
+      margin-top: 10px;
     }
     .usage-range {
-      min-height: 40px;
+      min-height: 32px;
       border: none;
       border-radius: var(--r-pill);
       background: var(--fill);
       border: 0.5px solid var(--glass-stroke-soft);
       color: var(--text-secondary);
       font: inherit;
-      font-size: 15px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
       letter-spacing: -0.02em;
       cursor: pointer;
       transition: background 0.18s, color 0.18s, transform 0.12s;
@@ -556,8 +563,37 @@
     .usage-line-chart {
       position: relative;
       min-height: 196px;
-      padding: 12px 10px 9px;
+      padding: 12px 8px 9px;
       direction: ltr;
+    }
+    .usage-chart-stage {
+      display: grid;
+      grid-template-columns: 30px minmax(0, 1fr);
+      align-items: stretch;
+      direction: ltr;
+    }
+    .usage-y-axis {
+      position: relative;
+      height: 150px;
+      color: rgba(255,255,255,0.48);
+      direction: ltr;
+    }
+    .usage-y-label {
+      position: absolute;
+      right: 4px;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 1px;
+      transform: translateY(-50%);
+      font-size: 8px;
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .usage-y-label small {
+      font-size: 6px;
+      font-weight: 700;
+      opacity: 0.7;
     }
     .usage-line-svg {
       display: block;
@@ -594,24 +630,25 @@
         drop-shadow(0 0 10px rgba(255,95,0,0.5));
       vector-effect: non-scaling-stroke;
     }
+    .usage-line-point-target { cursor: pointer; }
+    .usage-line-hit { fill: transparent; }
     .usage-line-point {
       fill: #ffd0a0;
       stroke: #ff5f00;
       stroke-width: 2.2;
       filter: drop-shadow(0 0 5px rgba(255,106,0,0.9));
       vector-effect: non-scaling-stroke;
-      cursor: pointer;
       transform-box: fill-box;
       transform-origin: center;
       transition: transform 0.16s ease, fill 0.16s ease;
     }
-    .usage-line-point:hover,
-    .usage-line-point:focus,
-    .usage-line-point.active {
+    .usage-line-point-target:hover .usage-line-point,
+    .usage-line-point-target:focus .usage-line-point,
+    .usage-line-point-target.active .usage-line-point {
       fill: #fff;
       transform: scale(1.45);
-      outline: none;
     }
+    .usage-line-point-target:focus { outline: none; }
     .usage-point-tooltip {
       position: absolute;
       z-index: 4;
@@ -655,6 +692,7 @@
       align-items: center;
       gap: 0;
       margin-top: 4px;
+      margin-left: 30px;
       padding: 0 2px;
     }
     .usage-line-label {
@@ -664,6 +702,10 @@
       text-align: center;
       white-space: nowrap;
       direction: ltr;
+    }
+    .usage-line-labels.dense .usage-line-label {
+      font-size: 7px;
+      letter-spacing: -0.08em;
     }
     .usage-empty {
       min-height: 196px;
@@ -1381,14 +1423,18 @@
       <section class="glass usage-card">
         <div class="usage-head">
           <h2 class="usage-title">نمودار مصرف</h2>
-          <span class="usage-total" id="usage-total">—</span>
-        </div>
-        <div class="usage-ranges" role="tablist" aria-label="بازه نمودار مصرف">
-          <button type="button" class="usage-range active" data-range="1d">۱ روز</button>
-          <button type="button" class="usage-range" data-range="7d">۱ هفته</button>
+          <span class="usage-total">
+            <small id="usage-total-label">مصرف روزانه</small>
+            <span class="usage-total-value" id="usage-total">—</span>
+          </span>
         </div>
         <div class="usage-chart-wrap" id="usage-chart">
           <div class="usage-empty">در حال دریافت نمودار مصرف</div>
+        </div>
+        <div class="usage-ranges" role="tablist" aria-label="بازه نمودار مصرف">
+          <button type="button" class="usage-range active" data-range="1d" role="tab" aria-selected="true">روزانه</button>
+          <button type="button" class="usage-range" data-range="7d" role="tab" aria-selected="false">هفتگی</button>
+          <button type="button" class="usage-range" data-range="30d" role="tab" aria-selected="false">ماهانه</button>
         </div>
       </section>
 
@@ -2102,8 +2148,9 @@
   var usageRange = '1d';
   var usageRequestId = 0;
   var USAGE_RANGES = {
-    '1d': { period: 'hour', hours: 24 },
-    '7d': { period: 'day', days: 7 }
+    '1d': { period: 'hour', hours: 24, slots: 24, step: 3600000, totalLabel: 'مصرف روزانه' },
+    '7d': { period: 'day', days: 7, slots: 7, step: 86400000, totalLabel: 'مصرف هفتگی' },
+    '30d': { period: 'day', days: 30, slots: 30, step: 86400000, totalLabel: 'مصرف ماهانه' }
   };
 
   function updateAccountUsage(usedValue, limitValue) {
@@ -2161,25 +2208,87 @@
     });
   }
 
-  function tehranHourLabel(index, count) {
-    var date = new Date(Date.now() - Math.max(0, count - 1 - index) * 3 * 3600000);
-    if (isNaN(date.getTime())) return '';
+  function usagePad(value) {
+    return String(value).padStart(2, '0');
+  }
+
+  function tehranDateParts(date) {
+    if (!(date instanceof Date) || isNaN(date.getTime())) return null;
     try {
-      var hour = new Intl.DateTimeFormat('en-US', {
+      var parts = new Intl.DateTimeFormat('en-US', {
         timeZone: 'Asia/Tehran',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
         hour: '2-digit',
-        hour12: false
-      }).format(date);
-      hour = parseInt(hour, 10);
-      if (hour === 24) hour = 0;
-      return toPersianDigits(hour);
+        hourCycle: 'h23'
+      }).formatToParts(date);
+      var out = {};
+      parts.forEach(function (part) {
+        if (part.type !== 'literal') out[part.type] = parseInt(part.value, 10);
+      });
+      if (out.hour === 24) out.hour = 0;
+      return out;
     } catch (e) {
-      return date.toLocaleTimeString('fa-IR', { hour: 'numeric' }).replace(/:.*$/, '');
+      return {
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate(),
+        hour: date.getHours()
+      };
     }
   }
 
-  function tehranWeekdayLabel(index, count) {
-    var date = new Date(Date.now() - Math.max(0, count - 1 - index) * 86400000);
+  function usagePeriodKey(time, range) {
+    var parts = tehranDateParts(new Date(time));
+    if (!parts) return '';
+    var key = parts.year + '-' + usagePad(parts.month) + '-' + usagePad(parts.day);
+    return range === '1d' ? key + '-' + usagePad(parts.hour) : key;
+  }
+
+  function usageWallKey(wallTime, range) {
+    var date = new Date(wallTime);
+    var key = date.getUTCFullYear() + '-' + usagePad(date.getUTCMonth() + 1) + '-' + usagePad(date.getUTCDate());
+    return range === '1d' ? key + '-' + usagePad(date.getUTCHours()) : key;
+  }
+
+  function usageWallIso(wallTime, range) {
+    var date = new Date(wallTime);
+    return date.getUTCFullYear() + '-' + usagePad(date.getUTCMonth() + 1) + '-' + usagePad(date.getUTCDate()) +
+      'T' + (range === '1d' ? usagePad(date.getUTCHours()) : '00') + ':00:00+03:30';
+  }
+
+  function buildUsageBuckets(items, range) {
+    var meta = USAGE_RANGES[range] || USAGE_RANGES['1d'];
+    var nowParts = tehranDateParts(new Date());
+    var anchor = Date.UTC(nowParts.year, nowParts.month - 1, nowParts.day, range === '1d' ? nowParts.hour : 0, 0, 0, 0);
+    var totals = {};
+    var actualTimes = {};
+    items.forEach(function (item) {
+      var key = usagePeriodKey(item.time, range);
+      if (!key) return;
+      totals[key] = (totals[key] || 0) + (Number(item.value) || 0);
+      if (!actualTimes[key]) actualTimes[key] = item.time;
+    });
+    var buckets = [];
+    for (var index = 0; index < meta.slots; index++) {
+      var wallTime = anchor - (meta.slots - 1 - index) * meta.step;
+      var key = usageWallKey(wallTime, range);
+      buckets.push({
+        time: actualTimes[key] || usageWallIso(wallTime, range),
+        value: totals[key] || 0
+      });
+    }
+    return buckets;
+  }
+
+  function tehranHourLabel(time) {
+    var parts = tehranDateParts(new Date(time));
+    return parts ? toPersianDigits(parts.hour) : '';
+  }
+
+  function tehranWeekdayLabel(time) {
+    var date = new Date(time);
     try {
       return new Intl.DateTimeFormat('fa-IR', {
         timeZone: 'Asia/Tehran',
@@ -2190,8 +2299,48 @@
     }
   }
 
-  function usageTickLabel(range, index, count) {
-    return range === '1d' ? tehranHourLabel(index, count) : tehranWeekdayLabel(index, count);
+  function tehranMonthDayLabel(time) {
+    var date = new Date(time);
+    try {
+      return new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+        timeZone: 'Asia/Tehran',
+        day: 'numeric'
+      }).format(date);
+    } catch (e) {
+      return toPersianDigits(date.getDate());
+    }
+  }
+
+  function usageTickLabel(range, bucket) {
+    if (range === '1d') return tehranHourLabel(bucket.time);
+    if (range === '7d') return tehranWeekdayLabel(bucket.time);
+    return tehranMonthDayLabel(bucket.time);
+  }
+
+  function usageXAxisLabel(range, bucket, index, count) {
+    if (range !== '30d' || index === 0 || index === count - 1 || index % 5 === 0) {
+      return usageTickLabel(range, bucket);
+    }
+    return '';
+  }
+
+  function formatUsageTooltipDate(time) {
+    var date = new Date(time);
+    if (isNaN(date.getTime())) return '';
+    try {
+      return new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+        timeZone: 'Asia/Tehran',
+        calendar: 'persian',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23'
+      }).format(date);
+    } catch (e) {
+      return date.toLocaleString('fa-IR');
+    }
   }
 
   function formatUsageValue(value) {
@@ -2209,17 +2358,6 @@
     var text = amount < 1 ? amount.toFixed(2) : (amount < 10 ? amount.toFixed(1) : String(Math.round(amount)));
     text = text.replace(/\.0$/, '');
     return toPersianDigits(text) + unit;
-  }
-
-  function bucketUsage(items, range) {
-    var size = range === '1d' ? 3 : 1;
-    var out = [];
-    for (var i = 0; i < items.length; i += size) {
-      var slice = items.slice(i, i + size);
-      var total = slice.reduce(function (sum, item) { return sum + item.value; }, 0);
-      out.push({ value: total });
-    }
-    return out;
   }
 
   function chartNumber(value) {
@@ -2246,15 +2384,13 @@
 
   function renderUsageChart(items, range) {
     var chart = $('usage-chart');
-    if (!items.length) {
-      $('usage-total').textContent = '—';
-      chart.innerHTML = '<div class="usage-empty">آماری برای نمایش نیست</div>';
-      return;
-    }
-
-    var buckets = bucketUsage(items, range);
+    var meta = USAGE_RANGES[range] || USAGE_RANGES['1d'];
+    var buckets = buildUsageBuckets(items, range);
     var max = Math.max.apply(null, buckets.map(function (p) { return p.value; })) || 1;
     var total = buckets.reduce(function (sum, p) { return sum + p.value; }, 0);
+    var gigabyte = 1073741824;
+    var axisMaxGb = Math.max(5, Math.ceil(max / gigabyte / 5) * 5);
+    var axisMax = axisMaxGb * gigabyte;
     var width = 320;
     var height = 132;
     var padX = 12;
@@ -2263,48 +2399,60 @@
     var plotHeight = baseY - padTop;
     var points = buckets.map(function (bucket, idx) {
       var x = buckets.length === 1 ? width / 2 : padX + idx * (width - padX * 2) / (buckets.length - 1);
-      var y = baseY - (bucket.value / max) * plotHeight;
-      return { x: chartNumber(x), y: chartNumber(y), value: bucket.value };
+      var y = baseY - (bucket.value / axisMax) * plotHeight;
+      return { x: chartNumber(x), y: chartNumber(y), value: bucket.value, time: bucket.time };
     });
     var linePath = usageSmoothPath(points);
     var areaPath = linePath + ' L ' + points[points.length - 1].x + ' ' + baseY +
       ' L ' + points[0].x + ' ' + baseY + ' Z';
-    var grid = [0, 1, 2, 3].map(function (idx) {
-      var y = chartNumber(padTop + idx * plotHeight / 3);
-      return '<line class="usage-line-grid" x1="' + padX + '" y1="' + y + '" x2="' + (width - padX) + '" y2="' + y + '"></line>';
-    }).join('');
+    var grid = '';
+    var yLabels = '';
+    for (var tickGb = 0; tickGb <= axisMaxGb; tickGb += 5) {
+      var tickY = chartNumber(baseY - tickGb / axisMaxGb * plotHeight);
+      grid += '<line class="usage-line-grid" x1="' + padX + '" y1="' + tickY + '" x2="' + (width - padX) + '" y2="' + tickY + '"></line>';
+      if (tickGb > 0) {
+        yLabels += '<span class="usage-y-label" style="top:' + chartNumber(tickY / height * 100) + '%">' +
+          '<b>' + toPersianDigits(tickGb) + '</b><small>GB</small></span>';
+      }
+    }
     var pointNodes = points.map(function (point, idx) {
-      var label = usageTickLabel(range, idx, buckets.length);
+      var label = formatUsageTooltipDate(point.time);
       var readable = label + '، ' + formatBytes(point.value);
-      return '<circle class="usage-line-point" cx="' + point.x + '" cy="' + point.y + '" r="4" tabindex="0" role="button"' +
+      return '<g class="usage-line-point-target" tabindex="0" role="button"' +
         ' aria-label="' + escapeAttr(readable) + '" data-value="' + point.value + '" data-label="' + escapeAttr(label) + '"' +
         ' data-x="' + point.x + '" data-y="' + point.y + '">' +
-        '<title>' + escapeHtml(readable) + '</title></circle>';
+        '<circle class="usage-line-hit" cx="' + point.x + '" cy="' + point.y + '" r="9"></circle>' +
+        '<circle class="usage-line-point" cx="' + point.x + '" cy="' + point.y + '" r="3.6"></circle>' +
+        '<title>' + escapeHtml(readable) + '</title></g>';
     }).join('');
-    var labels = buckets.map(function (_, idx) {
-      return '<span class="usage-line-label">' + escapeHtml(usageTickLabel(range, idx, buckets.length)) + '</span>';
+    var labels = buckets.map(function (bucket, idx) {
+      return '<span class="usage-line-label">' + escapeHtml(usageXAxisLabel(range, bucket, idx, buckets.length)) + '</span>';
     }).join('');
+    $('usage-total-label').textContent = meta.totalLabel;
     $('usage-total').textContent = formatBytes(total);
     chart.innerHTML = '<div class="usage-line-chart">' +
-      '<svg class="usage-line-svg" viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="none" role="img" aria-label="نمودار خطی مصرف">' +
-        '<defs><linearGradient id="usage-area-gradient" x1="0" y1="0" x2="0" y2="1">' +
-          '<stop offset="0%" stop-color="#ff7900" stop-opacity="0.42"></stop>' +
-          '<stop offset="65%" stop-color="#ff5f00" stop-opacity="0.12"></stop>' +
-          '<stop offset="100%" stop-color="#ff5f00" stop-opacity="0"></stop>' +
-        '</linearGradient></defs>' +
-        grid +
-        '<path class="usage-line-area" d="' + areaPath + '"></path>' +
-        '<path class="usage-line-glow" d="' + linePath + '"></path>' +
-        '<path class="usage-line-path" d="' + linePath + '"></path>' +
-        pointNodes +
-      '</svg>' +
-      '<div class="usage-line-labels" style="--point-count:' + buckets.length + '">' + labels + '</div>' +
+      '<div class="usage-chart-stage">' +
+        '<div class="usage-y-axis" aria-hidden="true">' + yLabels + '</div>' +
+        '<svg class="usage-line-svg" viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="none" role="img" aria-label="نمودار خطی مصرف">' +
+          '<defs><linearGradient id="usage-area-gradient" x1="0" y1="0" x2="0" y2="1">' +
+            '<stop offset="0%" stop-color="#ff7900" stop-opacity="0.42"></stop>' +
+            '<stop offset="65%" stop-color="#ff5f00" stop-opacity="0.12"></stop>' +
+            '<stop offset="100%" stop-color="#ff5f00" stop-opacity="0"></stop>' +
+          '</linearGradient></defs>' +
+          grid +
+          '<path class="usage-line-area" d="' + areaPath + '"></path>' +
+          '<path class="usage-line-glow" d="' + linePath + '"></path>' +
+          '<path class="usage-line-path" d="' + linePath + '"></path>' +
+          pointNodes +
+        '</svg>' +
+      '</div>' +
+      '<div class="usage-line-labels' + (range === '1d' ? ' dense' : '') + '" style="--point-count:' + buckets.length + '">' + labels + '</div>' +
       '<div class="usage-point-tooltip" aria-hidden="true"><strong></strong><span></span></div>' +
     '</div>';
 
     var tooltip = chart.querySelector('.usage-point-tooltip');
     var svg = chart.querySelector('.usage-line-svg');
-    var pointElements = chart.querySelectorAll('.usage-line-point');
+    var pointElements = chart.querySelectorAll('.usage-line-point-target');
     function hidePointTooltip() {
       tooltip.classList.remove('show');
       tooltip.setAttribute('aria-hidden', 'true');
@@ -2352,7 +2500,9 @@
     svg.addEventListener('click', hidePointTooltip);
   }
 
-  function renderUsageLoading() {
+  function renderUsageLoading(range) {
+    var meta = USAGE_RANGES[range] || USAGE_RANGES['1d'];
+    $('usage-total-label').textContent = meta.totalLabel;
     $('usage-total').textContent = '—';
     $('usage-chart').innerHTML = '<div class="usage-empty">در حال دریافت نمودار مصرف</div>';
   }
@@ -2361,12 +2511,19 @@
     if (!usageCtx) return;
     usageRange = range || usageRange;
     document.querySelectorAll('.usage-range').forEach(function (btn) {
-      btn.classList.toggle('active', btn.getAttribute('data-range') === usageRange);
+      var active = btn.getAttribute('data-range') === usageRange;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
     });
     var requestId = ++usageRequestId;
-    renderUsageLoading();
+    renderUsageLoading(usageRange);
     fetchUsage(usageCtx, usageRange).then(function (data) {
       if (requestId !== usageRequestId) return;
+      if (!data) {
+        $('usage-total').textContent = '—';
+        $('usage-chart').innerHTML = '<div class="usage-empty">دریافت آمار مصرف ممکن نشد</div>';
+        return;
+      }
       renderUsageChart(normalizeUsage(data), usageRange);
     });
   }
