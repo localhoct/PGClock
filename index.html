@@ -796,6 +796,18 @@
     .tabs-card {
       margin-bottom: 0;
     }
+    .desktop-content-grid {
+      min-width: 0;
+    }
+    .content-card {
+      display: none;
+    }
+    .content-card.active {
+      display: block;
+    }
+    .content-card-head {
+      display: none;
+    }
     .tab-switcher {
       display: flex;
       align-items: center;
@@ -1360,87 +1372,236 @@
 
     @media (min-width: 960px) {
       :root {
-        --pad-x: 28px;
-        --pad-y: 26px;
+        --pad-x: 22px;
+        --pad-y: 18px;
       }
       body {
-        padding: 34px clamp(32px, 5vw, 80px) 48px;
+        height: 100dvh;
+        overflow: hidden;
+        padding: 18px clamp(24px, 4vw, 72px);
       }
       .page {
-        max-width: 1180px;
+        height: 100%;
+        max-width: 1500px;
       }
       #main.visible {
-        display: grid;
-        grid-template-columns: minmax(470px, 1.15fr) minmax(350px, 0.85fr);
-        align-items: stretch;
-        gap: 20px;
-        direction: ltr;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+        gap: 14px;
       }
       #main > * {
         min-width: 0;
-        direction: rtl;
       }
       #announce {
-        grid-column: 1 / -1;
+        flex: 0 0 auto;
         margin-bottom: 0;
+      }
+      .desktop-overview {
+        flex: 1.08 1 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1.18fr) minmax(360px, 0.82fr);
+        grid-template-rows: minmax(0, 1fr);
+        gap: 16px;
+        min-height: 0;
+        direction: ltr;
       }
       .profile {
         grid-column: 2;
+        grid-row: 1;
+        height: 100%;
+        min-height: 0;
         margin-bottom: 0;
+        direction: rtl;
       }
       .usage-card {
         grid-column: 1;
+        grid-row: 1;
+        height: 100%;
+        min-height: 0;
         margin-bottom: 0;
+        direction: rtl;
       }
       .tabs-shell {
-        grid-column: 1 / -1;
+        flex: 0.92 1 0;
+        min-height: 0;
         margin-bottom: 0;
       }
       .account-card {
+        display: flex;
+        flex-direction: column;
         height: 100%;
-        padding: 30px 32px;
+        padding: 20px 24px;
       }
       .account-name {
-        font-size: 30px;
+        font-size: 27px;
+      }
+      .account-subline {
+        margin-top: 10px;
+      }
+      .account-usage-block {
+        margin-top: 14px;
+        padding-top: 13px;
+      }
+      .account-volume-row {
+        margin-top: 9px;
+      }
+      .account-meta-row {
+        margin-top: auto;
+        padding-top: 12px;
       }
       .usage-card {
-        padding: 28px 30px;
+        display: flex;
+        flex-direction: column;
+        padding: 18px 22px;
       }
       .usage-title {
-        font-size: 19px;
+        font-size: 18px;
       }
-      .usage-chart-wrap,
+      .usage-head {
+        flex: 0 0 auto;
+        margin-bottom: 9px;
+      }
+      .usage-chart-wrap {
+        flex: 1 1 auto;
+        min-height: 0;
+      }
       .usage-line-chart {
-        min-height: 268px;
+        min-height: 0;
+        padding: 8px 8px 6px;
       }
       .usage-line-svg,
       .usage-y-axis {
-        height: 218px;
+        height: clamp(145px, 22vh, 218px);
       }
       .usage-line-label {
-        font-size: 11px;
+        font-size: 10px;
       }
       .usage-line-labels.dense .usage-line-label {
-        font-size: 8px;
+        font-size: 7px;
       }
       .usage-ranges {
+        flex: 0 0 auto;
         max-width: 430px;
+        margin-top: 8px;
         margin-inline: auto;
       }
       .usage-range {
-        min-height: 36px;
-        font-size: 12px;
+        min-height: 32px;
+        font-size: 11px;
       }
       .tab-switcher {
-        width: min(100%, 520px);
-        margin: 0 auto 12px;
+        display: none;
       }
-      .tabs-card {
-        min-height: 180px;
+      .desktop-content-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: minmax(0, 1fr);
+        gap: 16px;
+        height: 100%;
+        min-height: 0;
+        direction: ltr;
+      }
+      .content-card,
+      .content-card.active {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
+        direction: rtl;
+      }
+      .tabs-shell.configs-only .desktop-content-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .tabs-shell.configs-only #apps-card {
+        display: none;
+      }
+      .content-card-head {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex: 0 0 50px;
+        padding: 0 22px;
+        border-bottom: 0.5px solid var(--glass-stroke-soft);
+      }
+      .content-card-title {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .content-card-note {
+        color: var(--text-tertiary);
+        font-size: 10px;
+        font-weight: 700;
+      }
+      .tabs-content,
+      .tab-panel {
+        flex: 1 1 auto;
+        height: 100%;
+        min-height: 0;
+      }
+      .content-card .tab-panel {
+        display: block;
+      }
+      #apps-list,
+      #connections-list {
+        height: 100%;
+        overflow: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255,106,0,0.42) transparent;
+      }
+      #apps-list::-webkit-scrollbar,
+      #connections-list::-webkit-scrollbar {
+        width: 6px;
+      }
+      #apps-list::-webkit-scrollbar-thumb,
+      #connections-list::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: rgba(255,106,0,0.42);
       }
       .platform-toggle {
-        padding: 22px 30px;
+        min-height: 58px;
+        padding: 10px 18px;
       }
+      .platform-icon,
+      .platform-chev {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+      }
+      .app-card {
+        padding: 14px 18px;
+      }
+      .app-card .app-top {
+        margin-bottom: 9px;
+      }
+      .app-btns a.dl,
+      .app-btns a.im {
+        min-height: 36px;
+        padding: 7px 12px;
+        font-size: 13px;
+      }
+      .conn-row {
+        min-height: 58px;
+        padding: 12px 18px;
+      }
+      .conn-row .ico-svg,
+      .btn-copy,
+      .btn-qr,
+      .btn-download {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+      }
+    }
+
+    @media (min-width: 1280px) {
       .platform-accordion.open .platform-content {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1454,21 +1615,6 @@
       }
       .platform-accordion.open .app-card:last-child,
       .platform-accordion.open .app-card:nth-last-child(2):nth-child(odd) {
-        border-bottom: none;
-      }
-      #connections-list {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-      #connections-list .conn-row {
-        border-top: none;
-        border-bottom: 0.5px solid var(--glass-stroke-soft);
-      }
-      #connections-list .conn-row:nth-child(odd) {
-        border-left: 0.5px solid var(--glass-stroke-soft);
-      }
-      #connections-list .conn-row:last-child,
-      #connections-list .conn-row:nth-last-child(2):nth-child(odd) {
         border-bottom: none;
       }
     }
@@ -1500,6 +1646,7 @@
     <div id="main">
       <div id="announce" class="announce hidden"></div>
 
+      <div class="desktop-overview">
       <section class="glass profile">
         <div class="account-card">
           <div class="account-header">
@@ -1566,22 +1713,37 @@
           <button type="button" class="usage-range" data-range="30d" role="tab" aria-selected="false">ماهانه</button>
         </div>
       </section>
+      </div>
 
       <div class="tabs-shell" id="content-tabs">
         <div class="tab-switcher" role="tablist" aria-label="محتوای اشتراک">
           <button type="button" class="tab-btn active" data-tab="apps" role="tab" aria-selected="true" aria-controls="apps-panel"><span class="tab-label">اپلیکیشن‌ها</span></button>
           <button type="button" class="tab-btn" data-tab="configs" role="tab" aria-selected="false" aria-controls="configs-panel"><span class="tab-label">کانفیگ‌ها</span></button>
         </div>
-        <section class="glass tabs-card">
-          <div class="tabs-content">
-            <div class="tab-panel active" id="apps-panel" role="tabpanel">
-              <div id="apps-list"></div>
+        <div class="desktop-content-grid">
+          <section class="glass tabs-card content-card active" id="apps-card">
+            <header class="content-card-head">
+              <h2 class="content-card-title">اپلیکیشن‌ها</h2>
+              <span class="content-card-note">برنامه‌های پیشنهادی اتصال</span>
+            </header>
+            <div class="tabs-content">
+              <div class="tab-panel active" id="apps-panel" role="tabpanel">
+                <div id="apps-list"></div>
+              </div>
             </div>
-            <div class="tab-panel" id="configs-panel" role="tabpanel">
-              <div id="connections-list"></div>
+          </section>
+          <section class="glass tabs-card content-card" id="configs-card">
+            <header class="content-card-head">
+              <h2 class="content-card-title">کانفیگ‌ها</h2>
+              <span class="content-card-note">لینک‌ها و تنظیمات اتصال</span>
+            </header>
+            <div class="tabs-content">
+              <div class="tab-panel" id="configs-panel" role="tabpanel">
+                <div id="connections-list"></div>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
     </div>
   </div>
@@ -3124,6 +3286,8 @@
 
     $('apps-panel').classList.toggle('active', tab === 'apps');
     $('configs-panel').classList.toggle('active', tab === 'configs');
+    $('apps-card').classList.toggle('active', tab === 'apps');
+    $('configs-card').classList.toggle('active', tab === 'configs');
   }
 
   function loadAll(ctx) {
