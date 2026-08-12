@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="Preview.png" alt="PGClock AMOLED Preview" width="900">
+  <img src="file_00000000b16c81f4812334d4ec0d9393.png" alt="PGClock AMOLED Preview" width="900">
 </div>
 
 <h1 align="center">PGClock AMOLED</h1>
