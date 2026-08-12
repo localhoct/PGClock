@@ -2148,9 +2148,9 @@
   var usageRange = '1d';
   var usageRequestId = 0;
   var USAGE_RANGES = {
-    '1d': { period: 'hour', hours: 24, slots: 24, step: 3600000, axisStepGb: 1, totalLabel: 'مصرف روزانه' },
-    '7d': { period: 'day', days: 7, slots: 7, step: 86400000, axisStepGb: 5, totalLabel: 'مصرف هفتگی' },
-    '30d': { period: 'day', days: 30, slots: 30, step: 86400000, axisStepGb: 5, totalLabel: 'مصرف ماهانه' }
+    '1d': { period: 'hour', hours: 24, slots: 24, step: 3600000, totalLabel: 'مصرف روزانه' },
+    '7d': { period: 'day', days: 7, slots: 7, step: 86400000, totalLabel: 'مصرف هفتگی' },
+    '30d': { period: 'day', days: 30, slots: 30, step: 86400000, totalLabel: 'مصرف ماهانه' }
   };
 
   function updateAccountUsage(usedValue, limitValue) {
@@ -2382,6 +2382,15 @@
     return path;
   }
 
+  function usageAxisStep(maxGb) {
+    if (!isFinite(maxGb) || maxGb <= 5) return 1;
+    var roughStep = maxGb / 5;
+    var magnitude = Math.pow(10, Math.floor(Math.log(roughStep) / Math.LN10));
+    var normalized = roughStep / magnitude;
+    var niceStep = normalized <= 1 ? 1 : (normalized <= 2 ? 2 : (normalized <= 5 ? 5 : 10));
+    return Math.max(1, niceStep * magnitude);
+  }
+
   function renderUsageChart(items, range) {
     var chart = $('usage-chart');
     var meta = USAGE_RANGES[range] || USAGE_RANGES['1d'];
@@ -2389,7 +2398,7 @@
     var max = Math.max.apply(null, buckets.map(function (p) { return p.value; })) || 1;
     var total = buckets.reduce(function (sum, p) { return sum + p.value; }, 0);
     var gigabyte = 1073741824;
-    var axisStepGb = meta.axisStepGb;
+    var axisStepGb = usageAxisStep(max / gigabyte);
     var axisMaxGb = Math.max(axisStepGb, Math.ceil(max / gigabyte / axisStepGb) * axisStepGb);
     var axisMax = axisMaxGb * gigabyte;
     var width = 320;
