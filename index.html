@@ -2389,7 +2389,8 @@
     var max = Math.max.apply(null, buckets.map(function (p) { return p.value; })) || 1;
     var total = buckets.reduce(function (sum, p) { return sum + p.value; }, 0);
     var gigabyte = 1073741824;
-    var axisMaxGb = Math.max(5, Math.ceil(max / gigabyte / 5) * 5);
+    var axisStepGb = range === '1d' ? 1 : 5;
+    var axisMaxGb = Math.max(axisStepGb, Math.ceil(max / gigabyte / axisStepGb) * axisStepGb);
     var axisMax = axisMaxGb * gigabyte;
     var width = 320;
     var height = 132;
@@ -2407,7 +2408,7 @@
       ' L ' + points[0].x + ' ' + baseY + ' Z';
     var grid = '';
     var yLabels = '';
-    for (var tickGb = 0; tickGb <= axisMaxGb; tickGb += 5) {
+    for (var tickGb = 0; tickGb <= axisMaxGb; tickGb += axisStepGb) {
       var tickY = chartNumber(baseY - tickGb / axisMaxGb * plotHeight);
       grid += '<line class="usage-line-grid" x1="' + padX + '" y1="' + tickY + '" x2="' + (width - padX) + '" y2="' + tickY + '"></line>';
       if (tickGb > 0) {
